@@ -9,7 +9,8 @@
 		"watch": "tsc -w",
 		"test": "jest",
 		"test:coverage": "jest --coverage",
-		"cdk": "cdk"
+		"cdk": "cdk",
+		"db:init": "aws dynamodb batch-write-item --request-items file://data/initialDbData.json"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.8",
