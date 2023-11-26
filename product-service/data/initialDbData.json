@@ -6,7 +6,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80aa" },
 					"title": { "S": "BMW x5" },
 					"description": {
-						"S": "2003 · 311 000 km · 2 926 cm3 · Diesel"
+						"S": "2003 || 311 000 km || 2 926 cm3 || Diesel"
 					},
 					"price": { "N": "10000" }
 				}
@@ -18,7 +18,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a1" },
 					"title": { "S": "Audi A6" },
 					"description": {
-						"S": "2005 · 369 000 km · 2 393 cm3 · Petrol"
+						"S": "2005 || 369 000 km || 2 393 cm3 || Petrol"
 					},
 					"price": { "N": "15000" }
 				}
@@ -30,7 +30,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a3" },
 					"title": { "S": "Toyota Land Cruiser" },
 					"description": {
-						"S": "2007 · 366 400 km · 2 982 cm3 · Diesel"
+						"S": "2007 || 366 400 km || 2 982 cm3 || Diesel"
 					},
 					"price": { "N": "25000" }
 				}
@@ -42,7 +42,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80ab" },
 					"title": { "S": "Mercedes-Benz class S" },
 					"description": {
-						"S": "1992 · 25 000 km · 4 973 cm3 · Petrol"
+						"S": "1992 || 25 000 km || 4 973 cm3 || Petrol"
 					},
 					"price": { "N": "20000" }
 				}
@@ -54,7 +54,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a4" },
 					"title": { "S": "Jeep Grand Cherokee" },
 					"description": {
-						"S": "1997 · 257 000 km · 5 210 cm3 · Petrol"
+						"S": "1997 || 257 000 km || 5 210 cm3 || Petrol"
 					},
 					"price": { "N": "10000" }
 				}
@@ -66,7 +66,7 @@
 					"id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a6" },
 					"title": { "S": "Mercedes-Benz class G" },
 					"description": {
-						"S": "2007 · 57 000 km · 4 966 cm3 · Petrol"
+						"S": "2007 || 57 000 km || 4 966 cm3 || Petrol"
 					},
 					"price": { "N": "22000" }
 				}
@@ -93,7 +93,7 @@
 						"S": "7567ec4b-b10c-48c5-9345-fc73c48a80a1"
 					},
 					"count": {
-						"N": "1"
+						"N": "2"
 					}
 				}
 			}
@@ -105,7 +105,7 @@
 						"S": "7567ec4b-b10c-48c5-9345-fc73c48a80a3"
 					},
 					"count": {
-						"N": "1"
+						"N": "3"
 					}
 				}
 			}
@@ -117,7 +117,7 @@
 						"S": "7567ec4b-b10c-48c5-9345-fc73c48a80ab"
 					},
 					"count": {
-						"N": "1"
+						"N": "4"
 					}
 				}
 			}
@@ -129,7 +129,7 @@
 						"S": "7567ec4b-b10c-48c5-9345-fc73c48a80a4"
 					},
 					"count": {
-						"N": "1"
+						"N": "5"
 					}
 				}
 			}
@@ -141,7 +141,7 @@
 						"S": "7567ec4b-b10c-48c5-9345-fc73c48a80a6"
 					},
 					"count": {
-						"N": "1"
+						"N": "6"
 					}
 				}
 			}
