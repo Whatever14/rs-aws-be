@@ -1,19 +1,4 @@
-const mockedProductsList = [
-	{
-		description: '2003 · 311 000 km · 2 926 cm3 · Diesel',
-		id: '7567ec4b-b10c-48c5-9345-fc73c48a80aa',
-		price: 10000,
-		title: 'BMW x5',
-		image: 'https://store-images-rs-aws.s3.eu-central-1.amazonaws.com/x5.jfif',
-	},
-	{
-		description: '2007 · 57 000 km · 4 966 cm3 · Benzyna',
-		id: '7567ec4b-b10c-48c5-9345-fc73c48a80a3',
-		price: 22000,
-		title: 'Mercedes-Benz class G',
-		image: 'https://store-images-rs-aws.s3.eu-central-1.amazonaws.com/g.jfif',
-	},
-];
+const { DynamoDBClient, ScanCommand } = require('@aws-sdk/client-dynamodb');
 
 exports.handler = async function (event) {
 	console.log('request', JSON.stringify(event));
@@ -22,20 +7,61 @@ exports.handler = async function (event) {
 		/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 	);
 
+	const dynamoDB = new DynamoDBClient();
+
+	const productsTableName = process.env.PRODUCTS_TABLE_NAME;
+	const stocksTableName = process.env.STOCKS_TABLE_NAME;
+	const imagesTableName = process.env.IMAGES_TABLE_NAME;
+
+	const scanProductsCommand = new ScanCommand({
+		TableName: productsTableName,
+	});
+	const scanStocksCommand = new ScanCommand({ TableName: stocksTableName });
+	const scanImagesCommand = new ScanCommand({ TableName: imagesTableName });
+
 	if (
 		event.hasOwnProperty('pathParameters') &&
 		event.pathParameters.hasOwnProperty('productId')
 	) {
 		const productId = event.pathParameters.productId;
 
-		if (regex.test(productId)) {
-			for (let i = 0; i < mockedProductsList.length; i++) {
-				if (mockedProductsList[i].id === productId) {
-					return sendRes(200, mockedProductsList[i]);
-				}
-			}
+		try {
+			if (regex.test(productId)) {
+				const products = await dynamoDB.send(scanProductsCommand);
 
-			return sendRes(404, { message: 'Error: Product not found' });
+				for (let i = 0; i < products.Items.length; i++) {
+					if (products.Items[i].id.S === productId) {
+						const stocks = await dynamoDB.send(scanStocksCommand);
+						const images = await dynamoDB.send(scanImagesCommand);
+
+						const stocksData = stocks.Items.find(
+							(stock) =>
+								stock.product_id.S === products.Items[i].id.S
+						);
+						const imagesData = images.Items.find(
+							(image) =>
+								image.product_id.S === products.Items[i].id.S
+						);
+
+						const productById = {
+							id: products.Items[i].id.S,
+							description: products.Items[i].description.S,
+							price: products.Items[i].price.N,
+							title: products.Items[i].title.S,
+							count: stocksData.count.N,
+							imageURL: imagesData.imageURL.S,
+						};
+
+						return sendRes(200, productById);
+					}
+				}
+
+				return sendRes(404, { message: 'Error: Product not found' });
+			}
+		} catch (error) {
+			return sendRes(500, {
+				message: `Error reading from DynamoDB: ${error}`,
+			});
 		}
 
 		return sendRes(500, {

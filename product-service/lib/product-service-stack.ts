@@ -60,8 +60,40 @@ export class ProductServiceStack extends cdk.Stack {
 				code: cdk.aws_lambda.Code.fromAsset(
 					path.join(__dirname, '../lambda-handler')
 				),
+				environment: {
+					PRODUCTS_TABLE_NAME: productsTable.tableName,
+					STOCKS_TABLE_NAME: stocksTable.tableName,
+					IMAGES_TABLE_NAME: imagesTable.tableName,
+				},
+				timeout: cdk.Duration.seconds(10),
 			}
 		);
+
+		productsTable.grantReadWriteData(getProductsById);
+		stocksTable.grantReadWriteData(getProductsById);
+		imagesTable.grantReadWriteData(getProductsById);
+
+		const createProduct = new cdk.aws_lambda.Function(
+			this,
+			'createProductHandler',
+			{
+				runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+				handler: 'create-product.handler',
+				code: cdk.aws_lambda.Code.fromAsset(
+					path.join(__dirname, '../lambda-handler')
+				),
+				environment: {
+					PRODUCTS_TABLE_NAME: productsTable.tableName,
+					STOCKS_TABLE_NAME: stocksTable.tableName,
+					IMAGES_TABLE_NAME: imagesTable.tableName,
+				},
+				timeout: cdk.Duration.seconds(10),
+			}
+		);
+
+		productsTable.grantReadWriteData(createProduct);
+		stocksTable.grantReadWriteData(createProduct);
+		imagesTable.grantReadWriteData(createProduct);
 
 		const api = new cdk.aws_apigateway.RestApi(this, 'get-product-api');
 
@@ -77,6 +109,13 @@ export class ProductServiceStack extends cdk.Stack {
 			.addMethod(
 				'GET',
 				new cdk.aws_apigateway.LambdaIntegration(getProductsById)
+			);
+
+		api.root
+			.resourceForPath('products')
+			.addMethod(
+				'POST',
+				new cdk.aws_apigateway.LambdaIntegration(createProduct)
 			);
 
 		new cdk.CfnOutput(this, 'HTTP API URL', {
