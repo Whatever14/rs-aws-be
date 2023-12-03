@@ -10,7 +10,7 @@ class ImportServiceStack extends cdk.Stack {
 			'getProductsFileHandler',
 			{
 				runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
-				handler: 'get-products-file.handler',
+				handler: 'import-products-file.handler',
 				code: cdk.aws_lambda.Code.fromAsset(
 					path.join(__dirname, '../lambda-handler')
 				),
@@ -19,6 +19,7 @@ class ImportServiceStack extends cdk.Stack {
 					SECRET_ACCESS_KEY:
 						'TETsMaOsPINhOB0yZPAGprKnc1dn2B+COccs5iE2',
 					REGION: 'eu-central-1',
+					BUCKET: 'uploaded-files-rs-aws',
 				},
 			}
 		);

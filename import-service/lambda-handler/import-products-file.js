@@ -31,7 +31,7 @@ exports.handler = async function (event) {
 
 		const s3 = new S3Client(s3Configuration);
 		const command = new GetObjectCommand({
-			Bucket: 'uploaded-files-rs-aws',
+			Bucket: process.env.BUCKET,
 			Key: `uploaded/${event.queryStringParameters.name}`,
 		});
 
