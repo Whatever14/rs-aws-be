@@ -1,23 +1,47 @@
-const { Stack, Duration } = require('aws-cdk-lib');
-// const sqs = require('aws-cdk-lib/aws-sqs');
+const cdk = require('aws-cdk-lib');
+const path = require('path');
 
-class ImportServiceStack extends Stack {
-  /**
-   *
-   * @param {Construct} scope
-   * @param {string} id
-   * @param {StackProps=} props
-   */
-  constructor(scope, id, props) {
-    super(scope, id, props);
+class ImportServiceStack extends cdk.Stack {
+	constructor(scope, id, props) {
+		super(scope, id, props);
 
-    // The code that defines your stack goes here
+		const importProductsFile = new cdk.aws_lambda.Function(
+			this,
+			'getProductsFileHandler',
+			{
+				runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+				handler: 'get-products-file.handler',
+				code: cdk.aws_lambda.Code.fromAsset(
+					path.join(__dirname, '../lambda-handler')
+				),
+				environment: {
+					ACCESS_KEY_ID: 'AKIAZ2VCVPOD3IODKDYH',
+					SECRET_ACCESS_KEY:
+						'TETsMaOsPINhOB0yZPAGprKnc1dn2B+COccs5iE2',
+					REGION: 'eu-central-1',
+				},
+			}
+		);
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'ImportServiceQueue', {
-    //   visibilityTimeout: Duration.seconds(300)
-    // });
-  }
+		const api = new cdk.aws_apigateway.RestApi(
+			this,
+			'get-products-file-api',
+			{
+				restApiName: 'query-string-path-param-api',
+			}
+		);
+
+		api.root
+			.resourceForPath('import')
+			.addMethod(
+				'GET',
+				new cdk.aws_apigateway.LambdaIntegration(importProductsFile)
+			);
+
+		new cdk.CfnOutput(this, 'HTTP API URL', {
+			value: api.url ?? 'Something went wrong...',
+		});
+	}
 }
 
-module.exports = { ImportServiceStack }
+module.exports = { ImportServiceStack };
