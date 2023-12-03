@@ -6,6 +6,29 @@ export class ProductServiceStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
 
+		const productsTableArn =
+			'arn:aws:dynamodb:eu-central-1:675724753799:table/products';
+		const stocksTableArn =
+			'arn:aws:dynamodb:eu-central-1:675724753799:table/stocks';
+		const imagesTableArn =
+			'arn:aws:dynamodb:eu-central-1:675724753799:table/images';
+
+		const productsTable = cdk.aws_dynamodb.Table.fromTableArn(
+			this,
+			'products',
+			productsTableArn
+		);
+		const stocksTable = cdk.aws_dynamodb.Table.fromTableArn(
+			this,
+			'stocks',
+			stocksTableArn
+		);
+		const imagesTable = cdk.aws_dynamodb.Table.fromTableArn(
+			this,
+			'images',
+			imagesTableArn
+		);
+
 		const getProductsList = new cdk.aws_lambda.Function(
 			this,
 			'getAllProductsHandler',
@@ -15,8 +38,18 @@ export class ProductServiceStack extends cdk.Stack {
 				code: cdk.aws_lambda.Code.fromAsset(
 					path.join(__dirname, '../lambda-handler')
 				),
+				environment: {
+					PRODUCTS_TABLE_NAME: productsTable.tableName,
+					STOCKS_TABLE_NAME: stocksTable.tableName,
+					IMAGES_TABLE_NAME: imagesTable.tableName,
+				},
+				timeout: cdk.Duration.seconds(10),
 			}
 		);
+
+		productsTable.grantReadWriteData(getProductsList);
+		stocksTable.grantReadWriteData(getProductsList);
+		imagesTable.grantReadWriteData(getProductsList);
 
 		const getProductsById = new cdk.aws_lambda.Function(
 			this,
@@ -27,8 +60,40 @@ export class ProductServiceStack extends cdk.Stack {
 				code: cdk.aws_lambda.Code.fromAsset(
 					path.join(__dirname, '../lambda-handler')
 				),
+				environment: {
+					PRODUCTS_TABLE_NAME: productsTable.tableName,
+					STOCKS_TABLE_NAME: stocksTable.tableName,
+					IMAGES_TABLE_NAME: imagesTable.tableName,
+				},
+				timeout: cdk.Duration.seconds(10),
 			}
 		);
+
+		productsTable.grantReadWriteData(getProductsById);
+		stocksTable.grantReadWriteData(getProductsById);
+		imagesTable.grantReadWriteData(getProductsById);
+
+		const createProduct = new cdk.aws_lambda.Function(
+			this,
+			'createProductHandler',
+			{
+				runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+				handler: 'create-product.handler',
+				code: cdk.aws_lambda.Code.fromAsset(
+					path.join(__dirname, '../lambda-handler')
+				),
+				environment: {
+					PRODUCTS_TABLE_NAME: productsTable.tableName,
+					STOCKS_TABLE_NAME: stocksTable.tableName,
+					IMAGES_TABLE_NAME: imagesTable.tableName,
+				},
+				timeout: cdk.Duration.seconds(10),
+			}
+		);
+
+		productsTable.grantReadWriteData(createProduct);
+		stocksTable.grantReadWriteData(createProduct);
+		imagesTable.grantReadWriteData(createProduct);
 
 		const api = new cdk.aws_apigateway.RestApi(this, 'get-product-api');
 
@@ -44,6 +109,13 @@ export class ProductServiceStack extends cdk.Stack {
 			.addMethod(
 				'GET',
 				new cdk.aws_apigateway.LambdaIntegration(getProductsById)
+			);
+
+		api.root
+			.resourceForPath('products')
+			.addMethod(
+				'POST',
+				new cdk.aws_apigateway.LambdaIntegration(createProduct)
 			);
 
 		new cdk.CfnOutput(this, 'HTTP API URL', {
